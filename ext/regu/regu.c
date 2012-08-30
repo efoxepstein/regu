@@ -1,5 +1,5 @@
 #include <ruby.h>
-#include <table.c>
+#include <table.h>
 
 static VALUE regu_new(VALUE class) {
   // 1. compile
