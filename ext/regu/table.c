@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
 typedef char sym;
 
 typedef sym **table;
@@ -8,21 +11,24 @@ typedef struct {
 } regu;
 
 regu CreateTable(sym numStates) {
+  regu reg;
   table tab = (table) malloc(numStates * sizeof(numStates));
   
   for (int i = 0; i < numStates; ++i)
     tab[i] = (sym *) calloc(129, sizeof(numStates));
 
-  regu reg = { tab, numStates };
+  reg.tab = tab;
+  reg.numStates = numStates;
+
   return reg;
 }
 
 void AddTransition(regu reg, sym src, sym on, sym dst) {
-  reg.tab[src][on] = dst;
+  reg.tab[(int) src][(int) on] = dst;
 }
 
 void MakeAcceptState(regu reg, sym state) {
-  reg.tab[state][128] = 1;
+  reg.tab[(int) state][128] = 1;
 }
 
 bool Accepts(regu reg, sym *word, int len) {
@@ -30,7 +36,7 @@ bool Accepts(regu reg, sym *word, int len) {
   sym state = 0;
 
   for (int i = 0; i < len; ++i)
-    state = tab[state][word[i]];
+    state = tab[(int) state][(int) word[i]];
 
-  return tab[state][128] == 1;
+  return tab[(int) state][128] == 1;
 }
