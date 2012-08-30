@@ -37,7 +37,10 @@ static VALUE regu_make_accepting(VALUE self, VALUE state) {
 static VALUE regu_test(VALUE self, VALUE str) {
   regu *re = get_regu(self);
   
-  return Accepts(*re, RSTRING_PTR(str), RSTRING_LEN(str)) ? Qtrue : Qfalse;
+  char *ptr = RSTRING_PTR(str);
+  short len = RSTRING_LEN(str);
+  
+  return Accepts(*re, ptr, len) ? Qtrue : Qfalse;
 }
 
 
