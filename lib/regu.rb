@@ -1,4 +1,5 @@
 require 'regu/version'
+require 'regu/regu'
 require 'set'
 
 module Regu
@@ -33,7 +34,7 @@ module Regu
   end
 
 
-  class FA
+  class AFA
     attr_accessor :start_state, :states
   
     def initialize
@@ -45,7 +46,7 @@ module Regu
     end
   
     def self.base(letter)
-      nfa = FA.new
+      nfa = AFA.new
       a, b = node, node
       a[letter] << node
       b.accepting = true
@@ -59,7 +60,7 @@ module Regu
       new_start[EP] << @start_state
       new_accept.accepting = true
     
-      nfa = FA.new
+      nfa = AFA.new
     
       nfa.states << new_start << new_end
       nfa.start_state = new_start
@@ -76,7 +77,7 @@ module Regu
     def union(nfa2)
       a = node
       a[EP] << self.start_state << nfa2.start_state
-      nfa = FA.new
+      nfa = AFA.new
       nfa.start_state = a
       nfa.states << a
       nfa.states += self.states
@@ -93,7 +94,7 @@ module Regu
     end
   
     def concat(nfa2)
-      nfa = FA.new
+      nfa = AFA.new
       nfa1 = self.wrap
       nfa2 = nfa2.wrap
     
@@ -114,7 +115,7 @@ module Regu
       pos = 0
 
       until pos < queue.size
-        [word, proxy, states] = queue[pos]
+        word, proxy, states = queue[pos]
         pos += 1
   
         for sym in alphabet
