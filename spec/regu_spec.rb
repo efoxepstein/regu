@@ -55,6 +55,8 @@ describe 'Regu' do
     regu.accepts?('').should be_false
     regu.accepts?('HelloWorld').should be_false
   end
+  
+  # it 'should handle'
 
   
 end

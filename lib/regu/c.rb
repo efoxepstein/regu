@@ -5,7 +5,7 @@ module Regu
     
     attr_accessor :use_ruby
     def use_ruby?
-      true || use_ruby
+      use_ruby
     end
         
     inline do |builder|
