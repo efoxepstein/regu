@@ -1,13 +1,16 @@
 module Regu
 
   EP = Object.new
+  def EP.to_s
+    'EP'
+  end
 
   class Node < Hash
     attr_accessor :accepting
   
     def initialize(accept = false)
       self.accepting = accept
-      super {|h,k| h[k] = Set.new }
+      super() {|h,k| h[k] = [] }
     end
   
     def accepting?
@@ -23,10 +26,20 @@ module Regu
       end
       states
     end
+    
+    def to_s
+      object_id
+    end
+    def inspect
+      to_s
+    end
+    
+    def uid
+      @uid ||= begin
+        @@uid ||= 0
+        @@uid += 1
+        "s#{@@uid}"
+      end
+    end
   end
-
-  def node
-    Node.new
-  end
-
 end

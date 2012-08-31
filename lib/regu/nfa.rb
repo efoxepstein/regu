@@ -13,7 +13,7 @@ module Regu
     def self.base(letter)
       nfa = NFA.new
       a, b = node, node
-      a[letter] << node
+      a[letter] << b
       b.accepting = true
       nfa.start_state = a
       nfa.states << a << b
@@ -22,16 +22,16 @@ module Regu
   
     def wrap
       new_start, new_accept = node, node
-      new_start[EP] << @start_state
+      new_start[EP] << start_state
       new_accept.accepting = true
     
       nfa = NFA.new
-    
-      nfa.states << new_start << new_end
+
+      nfa.states = [new_start, new_accept] + states
+
       nfa.start_state = new_start
     
       for state in accepting_states
-        nfa.states << state
         state.accepting = false
         state[EP] << new_accept
       end
@@ -49,6 +49,7 @@ module Regu
       nfa.states += nfa2.states
       nfa
     end
+    alias_method :|, :union
   
     def star
       nfa = wrap
@@ -63,14 +64,45 @@ module Regu
       nfa1 = self.wrap
       nfa2 = nfa2.wrap
     
-      nfa.states += nfa1.states
+      nfa.states += nfa1.states      
       nfa.states += nfa2.states
     
       for state in nfa1.accepting_states
+        state.accepting = false
         state[EP] << nfa2.start_state
       end
+      
+      nfa.start_state = nfa1.start_state
     
       nfa
+    end
+    
+    def to_dot
+      dot = ['digraph G {']
+      
+      dot << "\t#{start_state.uid} [shape=\"doublecircle\"];"
+
+      for state in states
+        if state.accepting?
+          dot << "\t#{state.uid} [color=\"green\"];"
+        end
+        for sym, dests in state
+          for dest in dests
+            dot << "\t#{state.uid} -> #{dest.uid} [label=\"#{sym}\"];"
+          end
+        end
+      end
+      
+      dot << '}'
+      dot.join("\n")
+    end
+    
+    private
+    def self.node
+      Node.new
+    end
+    def node
+      self.class.node
     end
   end
 end

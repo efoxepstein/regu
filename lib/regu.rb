@@ -11,11 +11,11 @@ module Regu
     Regu::DFA.to_table(Regu::DFA.from_nfa(nfa))
   end
   
-  def self.string(str)
+  def self.string(str, do_compile = true)
     r = str.each_char
            .map {|x| Regu::NFA.base x}
            .inject {|old, neu| old.concat(neu) }
-    
-    compile r
+           
+    do_compile ? compile(r) : r
   end
 end
