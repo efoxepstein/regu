@@ -1,6 +1,6 @@
 # Regu
 
-TODO: Write a gem description
+Regu is a fun experiment to see if it's viable to make fast, limited-power regular expressions for Ruby backed by DFAs.
 
 ## Installation
 
@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+I really don't recommend using it yet, it's very much broken and un-tested. If you want to help, add some specs, fix some bugs, have a good time.
 
 ## Contributing
 
