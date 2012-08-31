@@ -22,10 +22,6 @@ describe 'Regu' do
     
     concat = base1.concat base2
     
-    # File.open('reg.dot', 'w') do |f|
-    #   f.write concat.to_dot
-    # end
-    
     regu = Regu.compile concat
 
     regu.accepts?('hi').should be_true
@@ -56,7 +52,22 @@ describe 'Regu' do
     regu.accepts?('HelloWorld').should be_false
   end
   
-  # it 'should handle'
+  it 'should handle stars' do
+    prefix = Regu.string 'I am ', false
+    very = Regu.string 'very, ', false
+    suffix = Regu.string 'very happy', false
+    
+    concat = prefix-very.star-suffix
+    regu = Regu.compile concat
+    
+    regu.accepts?('I am very happy').should be_true
+    regu.accepts?('I am very, very happy').should be_true
+    regu.accepts?('I am very, very, very, very, very happy').should be_true
+    
+    regu.accepts?('I am').should be_false
+    regu.accepts?('very happy').should be_false
+    regu.accepts?('').should be_false
+  end
 
   
 end

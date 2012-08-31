@@ -1,3 +1,5 @@
+require 'set'
+
 module Regu
 
   EP = Object.new
@@ -18,13 +20,19 @@ module Regu
     end
   
     def epsilon_closure
-      states = [self]
-      i = 0
-      while i < states.size
-        states += states[i][EP]
-        i += 1
+      states = Set.new
+      stack = [self]
+      
+      until stack.empty?
+        top = stack.pop
+        
+        unless states.include? top
+          states << top
+          stack += top[EP]
+        end
       end
-      states
+
+      states.to_a
     end
     
     def to_s

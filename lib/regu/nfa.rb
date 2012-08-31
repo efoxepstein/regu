@@ -52,11 +52,15 @@ module Regu
     alias_method :|, :union
   
     def star
-      nfa = wrap
-      for state in nfa.accepting_states
-        state[EP] << nfa.start_state
+      wrap.tap do |nfa|
+      
+        raise 'Must have one accepting state' if nfa.accepting_states.size != 1
+        acceptor = nfa.accepting_states.first
+      
+        acceptor[EP] << nfa.start_state
+        nfa.start_state[EP] << acceptor
+      
       end
-      nfa
     end
   
     def concat(nfa2)
@@ -76,6 +80,7 @@ module Regu
     
       nfa
     end
+    alias_method :-, :concat
     
     def to_dot
       dot = ['digraph G {']
