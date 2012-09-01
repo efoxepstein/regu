@@ -3,13 +3,7 @@ require './lib/regu'
 describe 'Regu' do
   
   it 'should correctly handle bases' do
-    base = Regu::NFA.base 'x'
-    dfa  = Regu::DFA.from_nfa(base)
-    regu = Regu::DFA.to_table(dfa)
-    
-    File.open('reg.dot', 'w') do |f|
-      f.write dfa.to_dot
-    end
+    regu = Regu::Node.base('x').compile
         
     regu.accepts?('x').should be_true
     regu.accepts?('y').should be_false
@@ -17,12 +11,7 @@ describe 'Regu' do
   end
   
   it 'should handle base concat' do
-    base1 = Regu::NFA.base 'h'
-    base2 = Regu::NFA.base 'i'
-    
-    concat = base1.concat base2
-    
-    regu = Regu.compile concat
+    regu = Regu::Node.base('h').concat(Regu::Node.base('i')).compile
 
     regu.accepts?('hi').should be_true
 
@@ -32,19 +21,27 @@ describe 'Regu' do
   end
   
   it 'should handle strings' do
-    regu = Regu.string 'Hello World'
+    regu = Regu.string('Hello World').compile
     
     regu.accepts?('Foo Bar Baz').should be_false
     regu.accepts?('Hello World').should be_true
     regu.accepts?('Hello').should be_false
   end
   
-  it 'should handle unions' do
-    hello = Regu.string 'Hello', false
-    world = Regu.string 'World', false
-    union = hello | world
+  it 'should be order-agnostic sometimes' do
+    a, b, c = ('a'..'c').map {|x| Regu.string(x)}
     
-    regu = Regu.compile union
+    alpha = a.concat(b).concat(c).compile
+    beta = a.concat(b.concat(c)).compile
+    
+    alpha == beta
+  end
+  
+  it 'should handle unions' do
+    hello = Regu.string('Hello')
+    world = Regu.string('World')
+    
+    regu = hello.union(world).compile
     
     regu.accepts?('Hello').should be_true
     regu.accepts?('World').should be_true
@@ -53,12 +50,11 @@ describe 'Regu' do
   end
   
   it 'should handle stars' do
-    prefix = Regu.string 'I am ', false
-    very = Regu.string 'very, ', false
-    suffix = Regu.string 'very happy', false
+    prefix = Regu.string 'I am '
+    very = Regu.string 'very, '
+    suffix = Regu.string 'very happy'
     
-    concat = prefix-very.star-suffix
-    regu = Regu.compile concat
+    regu = prefix.concat(very.star).concat(suffix).compile
     
     regu.accepts?('I am very happy').should be_true
     regu.accepts?('I am very, very happy').should be_true

@@ -1,53 +1,97 @@
-require 'set'
-
 module Regu
-
-  EP = Object.new
-  def EP.to_s
-    'EP'
-  end
-
-  class Node < Hash
-    attr_accessor :accepting
   
-    def initialize(accept = false)
-      self.accepting = accept
-      super() {|h,k| h[k] = [] }
+  class Node
+    attr_accessor :op, :children
+    
+    def initialize(oper, *args)
+      @op = oper
+      @children = args
     end
-  
-    def accepting?
-      !! self.accepting
-    end
-  
-    def epsilon_closure
-      states = Set.new
-      stack = [self]
-      
-      until stack.empty?
-        top = stack.pop
-        
-        unless states.include? top
-          states << top
-          stack += top[EP]
-        end
-      end
-
-      states.to_a
+    
+    def to_state_graph
+      op.apply(*children)
     end
     
     def to_s
-      object_id
-    end
-    def inspect
-      to_s
+      op.to_s(*children.map(&:to_s))
     end
     
-    def uid
-      @uid ||= begin
-        @@uid ||= 0
-        @@uid += 1
-        "s#{@@uid}"
-      end
+    def self.base(sym)
+      Node.new(BaseOp, sym)
+    end
+
+    def star
+      Node.new(StarOp, self)
+    end
+    
+    def union(other)
+      Node.new(UnionOp, self, other)
+    end
+    alias_method :|, :union
+    
+    def concat(other)
+      Node.new(ConcatOp, self, other)
+    end
+    alias_method :-, :concat
+    
+    def compile
+      Regu::Table.new(to_state_graph)
     end
   end
+  
+  class BaseOp
+    def self.apply(symbol)
+      State.new(false).tap do |s|
+        s[symbol] << State.new(true)
+      end
+    end
+    
+    def self.to_s(c)
+      c
+    end
+  end
+  
+  class StarOp
+    def self.apply(child)
+      child.to_state_graph.wrap.tap do |state|
+        acceptor = state.detect {|s| s.accepting? }
+        acceptor[EP] << state
+        state[EP] << acceptor
+      end   
+    end
+    
+    def self.to_s(c)
+      "%s*" % c
+    end
+  end
+  
+  class UnionOp
+    def self.apply(left, right)
+      State.new(false).tap do |s|
+        s[EP] << left.to_state_graph << right.to_state_graph
+      end
+    end
+    
+    def self.to_s(l, r)
+      "(%s | %s)" % [l, r]
+    end
+  end
+  
+  class ConcatOp
+    def self.apply(left, right)
+      head, tail = left.to_state_graph.wrap, right.to_state_graph.wrap
+
+      head.select(&:accepting).each do |s|
+        s.accepting = false
+        s[EP] << tail
+      end
+      
+      head
+    end
+    
+    def self.to_s(l, r)
+      "(%s%s)" % [l, r]
+    end
+  end
+  
 end

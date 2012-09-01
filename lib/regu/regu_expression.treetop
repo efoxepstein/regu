@@ -1,0 +1,67 @@
+grammar ReguExpression
+
+rule regex
+  union / concat {
+    def value
+            puts "regex#value"
+      elements[0].value
+    end
+  }
+end
+
+rule union
+  left:(concat) '|' right:(concat) {
+    def value
+            puts "union#value"
+      left.value.union(right.value)
+    end
+  }
+end
+
+rule concat
+  (star / str / paren) concat? {
+    def value
+            puts "concat#value"
+      elements.map(&:value).inject(&:concat)
+    end
+  }
+end
+
+rule star
+  (sym / paren) '*' {
+    def value
+            puts "star#value"
+      elements[0].value.star
+    end
+  }
+end
+
+rule sym
+  [^|+()*] {
+    def value
+      puts "sym#value"
+      Regu::Node.base text_value.to_s[-1]
+    end
+  }
+end
+
+rule str
+  sym+ {
+    def value
+      puts "str#value"
+      elements.map(&:value).inject(:concat)
+    end
+  }
+end
+
+rule paren
+  '(' regex ')' {
+    def value
+      puts "paren#value"
+      regex.value
+    end
+  }
+end
+
+
+end
