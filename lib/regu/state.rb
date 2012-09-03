@@ -25,8 +25,7 @@ module Regu
     end
     
     attr_accessor :accepting, :transitions
-    
-    
+
     def initialize(accept = false)
       @accepting = accept
       @transitions = Hash.new {|h,k| h[k] = [] }

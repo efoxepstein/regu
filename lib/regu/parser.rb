@@ -15,7 +15,13 @@ module Regu
   
   def self.[](text)
     parse_tree = Regu::Parser.parse(text)
-    # puts parse_tree.inspect
+    PnDebug.log parse_tree.inspect
     parse_tree.compile
+  end
+end
+
+class Regexp
+  def regu
+    Regu[source]
   end
 end

@@ -8,15 +8,57 @@ grammar ReguExpression
   end
 
   rule concat
-    (star <StarNodeM> / sym <SymNodeM> / paren <ParenNodeM>)* <ConcatNodeM>
+    (repetitions / base <SymNodeM> / paren <ParenNodeM>)* <ConcatNodeM>
+  end
+  
+  rule repetitions
+    star <StarNodeM> /
+    plus <PlusNodeM> /
+    repetition_fixed <RepeatNodeM> /
+    repetition_range <RepeatRangeNodeM> /
+    optional <OptionalNodeM>
   end
 
   rule star
-    ((sym <SymNodeM> / paren <ParenNodeM>) '*') <StarNodeM>
+    (repeatable '*') <StarNodeM>
+  end
+  
+  rule plus
+    (repeatable '+') <PlusNodeM>
+  end
+  
+  rule repetition_fixed
+    (repeatable '{' reps:([0-9]+) '}') <RepeatNodeM>
+  end
+  
+  rule repetition_range
+    (repeatable '{' low:([0-9]+) ',' high:([0-9]+) '}') <RepeatRangeNodeM>
+  end
+  
+  rule optional
+    (repeatable '?') <OptionalNodeM>
+  end
+  
+  rule repeatable
+    base <SymNodeM> / paren <ParenNodeM>
+  end
+  
+  rule base
+    escaped_char <SymNodeM> /
+    normal_char  <SymNodeM> /
+    char_class   <SymNodeM>
   end
 
-  rule sym
-    [^|+()*] <SymNodeM>
+  rule escaped_char
+    '\\' .
+  end
+
+  rule normal_char
+    [^|+()*\[\]\{\}]
+  end
+  
+  rule char_class
+    ('[' ( ('\\' ']') / [^\]] )+ ']')
   end
 
   rule paren

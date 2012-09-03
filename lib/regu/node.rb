@@ -16,6 +16,10 @@ module Regu
       op.to_s(*children.map(&:to_s))
     end
     
+    def self.unit
+      Node.new(UnitOp)
+    end
+    
     def self.base(sym)
       Node.new(BaseOp, sym)
     end
@@ -36,6 +40,16 @@ module Regu
     
     def compile
       Regu::Table.new(to_state_graph)
+    end
+  end
+  
+  class UnitOp
+    def self.apply
+      State.new(true)
+    end
+    
+    def self.to_s
+      '_'
     end
   end
   
