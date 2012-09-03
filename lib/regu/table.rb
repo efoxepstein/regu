@@ -70,7 +70,8 @@ module Regu
       else
         c_accept(self, word, word.size)
       end != 0
-    end
+    end    
+    alias_method :=~, :accepts?
 
     def inspect
       each_byte.to_a.inspect

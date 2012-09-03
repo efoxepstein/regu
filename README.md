@@ -1,6 +1,6 @@
 # Regu
 
-Regu is a fun experiment to see if it's viable to make fast, limited-power regular expressions for Ruby backed by DFAs. Currently, it is pretty fast (about 2000 times faster than the native Ruby solution for big regular expressions).
+Regu is a fun experiment to see if it's viable to make a extremely fast, limited-power regular expression engine for Ruby backed by DFAs.
 
 ## Features
 
@@ -15,9 +15,38 @@ Regu is a fun experiment to see if it's viable to make fast, limited-power regul
 - Escaping: `\{ \( \[`
 - Character classes: `[^abc]`
 
+## Usage
+
+Add the gem to your Gemfile.
+
+    gem 'regu'
+
+Require it.
+
+    require 'regu'
+    
+Use it.
+
+    /some_regex/.regu
+    
+or
+
+    Regu['Hello (World|Eli)']
+
 ## Limitations
 
 DFA-based regular expression engines can't really handle lookahead or captures. So, Regu should be used strictly to see if something matches a particular format.
+
+## Performance
+
+From the benchmarks.rb file, we get:
+
+                  user     system      total        real
+    native    8.880000   0.010000   8.890000 (  8.933724)
+    regu-c    0.010000   0.000000   0.010000 (  0.009275)
+    regu-rb   0.200000   0.000000   0.200000 (  0.208004)
+
+We're pretty quick. 
 
 ## Contributing
 
