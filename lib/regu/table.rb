@@ -9,13 +9,12 @@ module Regu
       #        f.write states.to_dot
       #      end
       #      
-      states = states.to_dfa
-
+      dfa = states.to_dfa
       # File.open('dfa.dot', 'w') do |f|
       #   f.write states.to_dot
       # end
 
-      state_map = Hash[states.each_with_index.to_a]      
+      state_map = Hash[dfa.each_with_index.to_a]      
       table = state_map.map { "\x00" * 129 }
       
       for state, key in state_map
@@ -34,7 +33,7 @@ module Regu
       super(table.join)
     end
     
-    attr_accessor :use_ruby, :parse
+    attr_accessor :use_ruby, :state_diagram
     def use_ruby?
       use_ruby
     end
@@ -80,14 +79,9 @@ module Regu
         c_accept(self, word, word.size)
       end != 0
     end
-    
-    
+
     def inspect
-      each_byte.inspect
-    end
-    
-    def ==(other)
-      to_s == other.to_s
+      each_byte.to_a.inspect
     end
   end
 end

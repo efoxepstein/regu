@@ -1,9 +1,13 @@
 require 'set'
 
 require 'regu/version'
+
 require 'regu/node'
 require 'regu/state'
 require 'regu/table'
+
+require 'treetop'
+require 'regu/parser_nodes'
 require 'regu/parser'
 
 module Regu  

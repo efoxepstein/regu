@@ -1,5 +1,3 @@
-require 'treetop'
-
 module Regu
   class Parser
     Treetop.load 'lib/regu/regu_expression'
@@ -17,7 +15,7 @@ module Regu
   
   def self.[](text)
     parse_tree = Regu::Parser.parse(text)
-    # pp parse_tree
+    # puts parse_tree.inspect
     parse_tree.compile
   end
 end

@@ -47,7 +47,7 @@ module Regu
     end
     
     def self.to_s(c)
-      c
+      "%s" % c
     end
   end
   
@@ -93,5 +93,4 @@ module Regu
       "(%s%s)" % [l, r]
     end
   end
-  
 end
