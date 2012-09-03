@@ -1,29 +1,37 @@
+# on my system, regu_c is 1840 times faster than native!
+
 require './lib/regu'
 require 'benchmark'
 
-regexps = {
-  '(a|b)(a|b)*(a|b)(a|b)*' => %w[
+re = '(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*'
+tests = %w[
     aaaabbababababbabbabbabbbababbaba
     abababaabaababa
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     a
     aabababbabababababababababababababababababbababababababababbabababababababaababbac
     aababababababababbbabbabababababcababbabababababababababbabababababababbabab
+    abababbabababababababababababababbabababcababababababababababbabababababababababababbabababababaabab
+    6
   ]
-}
 
-reps = 100
+ruby_native = /#{re}/
+
+regu_c = Regu[re]
+regu_c.use_ruby = false
+
+regu_rb = Regu[re]
+regu_rb.use_ruby = true
+
+reps = 1000
 
 Benchmark.bmbm(10) do |x|
   x.report('native') do
     reps.times do
-      t = 0
-      for re, tests in regexps
-        rex = /#{re}/
-        for test in tests
-          if rex =~ test
-            t+= 1
-          end
+      t = 1
+      for test in tests
+        if ruby_native =~ test
+          t+= 1
         end
       end
     end
@@ -31,14 +39,10 @@ Benchmark.bmbm(10) do |x|
 
   x.report('regu-c') do
     reps.times do
-      t =0 
-      for re, tests in regexps
-        rex = Regu[re]
-        rex.use_ruby = false
-        for test in tests
-          if rex.accepts?(test)
-            t += 1
-          end
+      t = 1 
+      for test in tests
+        if regu_c.accepts?(test)
+          t += 1
         end
       end
     end
@@ -46,16 +50,13 @@ Benchmark.bmbm(10) do |x|
   
   x.report('regu-rb') do
     reps.times do
-      t = 0
-      for re, tests in regexps
-        rex = Regu[re]
-        rex.use_ruby = true
-        for test in tests
-          if rex.accepts?(test)
-            t += 1
-          end
+      t = 1
+      for test in tests
+        if regu_rb.accepts?(test)
+          t += 1
         end
       end
     end
   end
+
 end
