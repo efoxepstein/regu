@@ -53,6 +53,13 @@ From the benchmarks.rb file, we get:
 
 We're pretty quick. 
 
+## To-Do
+
+*Lazy defaults.* Hijack `Regex#match` and use Regu if it makes sense, but if a method is called on some `MatchData` object
+that we should return, then go back and use Ruby's `Regexp`. This really only makes sense if we can figure out the context. Since
+construction for us is so expensive and such, maybe we should only do this if the regexp is frozen or something to indicate that
+that it's initialized ahead-of-time.
+
 ## Contributing
 
 1. Fork it
