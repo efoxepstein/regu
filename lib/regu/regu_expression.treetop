@@ -4,19 +4,20 @@ grammar ReguExpression
   end
 
   rule union
-    (left:concat '|' right:regex) <UnionNodeM>
+    (first_element:(concat) rest_elements:('|' concat)+) <UnionNodeM>
   end
 
   rule concat
-    (repetitions / base <SymNodeM> / paren <ParenNodeM>)* <ConcatNodeM>
+    (repetitions / paren <ParenNodeM>)* <ConcatNodeM>
   end
   
   rule repetitions
-    star <StarNodeM> /
-    plus <PlusNodeM> /
-    repetition_fixed <RepeatNodeM> /
+    star             <StarNodeM>        /
+    plus             <PlusNodeM>        /
+    repetition_fixed <RepeatNodeM>      /
     repetition_range <RepeatRangeNodeM> /
-    optional <OptionalNodeM>
+    optional         <OptionalNodeM>    /
+    char             <CharNodeM>
   end
 
   rule star
@@ -40,16 +41,16 @@ grammar ReguExpression
   end
   
   rule repeatable
-    base <SymNodeM> / paren <ParenNodeM>
+    char <CharNodeM> / paren <ParenNodeM>
   end
   
-  rule base
-    escaped_char <SymNodeM> /
-    normal_char  <SymNodeM> /
-    char_class   <SymNodeM>
+  rule char
+    escape_char /
+    normal_char /
+    char_class
   end
 
-  rule escaped_char
+  rule escape_char
     '\\' .
   end
 

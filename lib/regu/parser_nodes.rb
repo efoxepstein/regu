@@ -4,45 +4,46 @@ class PnDebug
   end
 end
 
-module UnionNodeM
-  def value
-    PnDebug.log "union#value"
-    left.value.union(right.value)
+class Object
+  def inspecty
+    puts "<inspection #{op.name}>"
+    puts inspect
+    puts "</inspection>"
+    self
   end
 end
 
-class UnionNode < Treetop::Runtime::SyntaxNode
-  include UnionNodeM
+module UnionNodeM
+  def value
+    PnDebug.log "union#value"
+    
+    nodes = [first_element].concat(rest_elements.elements.map(&:concat))
+    Regu::Node.union nodes.map(&:value)
+  end
 end
-
 
 module ConcatNodeM
   def value
     PnDebug.log "concat#value"
-    elements.map(&:value).inject(&:concat)
+
+    Regu::Node.concat elements.map(&:value)
   end
 end
-
-class ConcatNode < Treetop::Runtime::SyntaxNode
-  include ConcatNodeM
-end
-
 
 module StarNodeM
   def value
     PnDebug.log "star#value"
-    elements[0].value.star
-  end
-end
 
-class StarNode < Treetop::Runtime::SyntaxNode
-  include StarNodeM
+    repeatable.value.star
+  end
 end
 
 module RepeatNodeM
   def value
     PnDebug.log "repeat#value"
-    reps.text_value.to_i.times.map { repeatable.value }.inject(&:concat)
+    nodes = reps.text_value.to_i.times.map { repeatable.value }
+
+    Regu::Node.concat(nodes)
   end
 end
 
@@ -51,14 +52,11 @@ module RepeatRangeNodeM
     PnDebug.log "repeat_range#value"
     lo, hi = low.text_value.to_i, high.text_value.to_i
     
-    necessary = lo.times.map { repeatable.value }.inject(&:concat)
-    optional  = (hi-lo).times.map { repeatable.value.union Regu::Node.unit }.inject(&:concat)
+    necessary = lo.times.map { repeatable.value }
+    optional  = (hi-lo).times.map { repeatable.value.union Regu::Node.unit }
 
-    if necessary.nil?
-      optional
-    else
-      necessary.concat(optional)
-    end
+    combined = Array(necessary)+Array(optional)
+    Regu::Node.concat combined
   end
 end
 
@@ -80,32 +78,19 @@ class PlusNode < Treetop::Runtime::SyntaxNode
   include PlusNodeM
 end
 
-module SymNodeM
+module CharNodeM
   def value
-    PnDebug.log "char_class#value"
+    PnDebug.log "char_node#value: #{text_value}"
     
-    meat = terminal? ? text_value : elements[0].text_value
-    
-    # PnR meat
-    
-    (0..255).map(&:chr)
-            .select {|x| /#{text_value}/ =~ x }
-            .map {|x| Regu::Node.base x }
-            .inject(&:union)
+    symbols = (0..127).map(&:chr).select {|x| /#{text_value}/ =~ x }
+    Regu::Node.base(symbols)
   end
 end
 
-class SymNode < Treetop::Runtime::SyntaxNode
-  include SymNodeM
-end
 
 module ParenNodeM
   def value
     PnDebug.log "paren#value"
     regex.value
   end
-end
-
-class ParenNode < Treetop::Runtime::SyntaxNode
-  include ParenNodeM
 end

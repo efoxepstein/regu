@@ -1,4 +1,5 @@
 require 'set'
+require 'inline'
 
 require 'regu/version'
 

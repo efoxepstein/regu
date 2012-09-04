@@ -59,7 +59,13 @@ describe 'the parser' do
   
   
   it 'should handle character classes' do
-    Regu['[abc]'].should == Regu['(a|b|c)']
+    abc = /[abc]/.regu
+    
+    abc.accepts?('a').should be_true
+    abc.accepts?('b').should be_true
+    abc.accepts?('c').should be_true
+    abc.accepts?('d').should be_false
+    
     expect {
       Regu['[\]]'].accepts? ']'
     }.to be_true

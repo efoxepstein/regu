@@ -5,7 +5,7 @@ module Regu
     
     def initialize(oper, *args)
       @op = oper
-      @children = args
+      @children = Array(args).flatten
     end
     
     def to_state_graph
@@ -13,28 +13,40 @@ module Regu
     end
     
     def to_s
-      op.to_s(*children.map(&:to_s))
+      op.to_s(*children)
     end
+    
+    #####
     
     def self.unit
       Node.new(UnitOp)
     end
     
-    def self.base(sym)
-      Node.new(BaseOp, sym)
+    def self.base(symbols)
+      Node.new(BaseOp, symbols)
     end
+
+    def self.union(nodes)
+      Node.new(UnionOp, Array(nodes))
+    end
+    
+    def self.concat(nodes)
+      Node.new(ConcatOp, nodes)
+    end
+    
+    #####
 
     def star
       Node.new(StarOp, self)
     end
     
-    def union(other)
-      Node.new(UnionOp, self, other)
+    def union(others)
+      Node.union([self] + Array(others))
     end
     alias_method :|, :union
     
-    def concat(other)
-      Node.new(ConcatOp, self, other)
+    def concat(others)
+      Node.concat([self] + Array(others))
     end
     alias_method :-, :concat
     
@@ -54,14 +66,22 @@ module Regu
   end
   
   class BaseOp
-    def self.apply(symbol)
-      State.new(false).tap do |s|
-        s[symbol] << State.new(true)
+    def self.apply(*symbols)
+      terminal = State.new(true)
+      
+      State.new(false).tap do |s|        
+        for sym in symbols
+          s[sym] << terminal
+        end
       end
     end
     
-    def self.to_s(c)
-      "%s" % c
+    def self.to_s(*symbols)
+      if symbols.size == 1
+        symbols[0]
+      else
+        '(' + symbols.join('|') + ')'
+      end
     end
   end
   
@@ -74,37 +94,44 @@ module Regu
       end   
     end
     
-    def self.to_s(c)
-      "%s*" % c
+    def self.to_s(child)
+      "%s*" % child
     end
   end
   
   class UnionOp
-    def self.apply(left, right)
+    def self.apply(*states)      
       State.new(false).tap do |s|
-        s[EP] << left.to_state_graph << right.to_state_graph
+        s[EP].concat(states.map(&:to_state_graph))
       end
     end
     
-    def self.to_s(l, r)
-      "(%s | %s)" % [l, r]
+    def self.to_s(*states)
+      '(' + states.map(&:to_s).join(' | ') + ')'
     end
   end
   
   class ConcatOp
-    def self.apply(left, right)
-      head, tail = left.to_state_graph.wrap, right.to_state_graph.wrap
+    def self.apply(*nodes)
+      states = nodes.map &:to_state_graph
 
-      head.select(&:accepting).each do |s|
-        s.accepting = false
-        s[EP] << tail
+      first = states.first
+      
+      until states.size == 1
+        head = states.shift
+        tail = states.first
+        
+        head.select(&:accepting).each do |s|
+          s.accepting = false
+          s[EP] << tail
+        end
       end
       
-      head
+      first
     end
     
-    def self.to_s(l, r)
-      "(%s%s)" % [l, r]
+    def self.to_s(*nodes)
+      '(' + nodes.map(&:to_s).join + ')'
     end
   end
 end

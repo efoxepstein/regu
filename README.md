@@ -37,6 +37,8 @@ or
 
 DFA-based regular expression engines can't really handle lookahead or captures. So, Regu should be used strictly to see if something matches a particular format.
 
+Also, right now, DFA construction is painfully slow.
+
 ## Performance
 
 From the benchmarks.rb file, we get:

@@ -35,6 +35,10 @@ module Regu
       transitions[*args]
     end
     
+    def []=(k, *args)
+      transitions[k] = *args
+    end
+    
     def each(&blk)
       State.traverse(self, &blk)
     end
@@ -44,8 +48,7 @@ module Regu
       !! self.accepting
     end
   
-    def epsilon_closure
-      states = Set.new
+    def epsilon_closure(states = Set.new)
       stack = [self]
       
       until stack.empty?
@@ -90,6 +93,9 @@ module Regu
         "s#{@@uid}"
       end
     end
+    def uid=(uid)
+      @uid = uid
+    end
     
     def to_dot
       dot = ['digraph G {']
@@ -123,11 +129,12 @@ module Regu
         # puts "Processing #{proxy.uid} (#{states.map(&:uid).inspect})"
   
         for sym in alphabet
-          can_reach = states.map{|x| x[sym]}
-                            .flatten.uniq
-                            .map(&:epsilon_closure)
-                            .flatten.uniq
+          can_reach = Set.new
           
+          states.map {|x| x[sym]}
+                .flatten
+                .each {|x| x.epsilon_closure(can_reach) }
+
           # puts "\t via #{sym.ord} it can reach #{can_reach.map(&:uid).inspect}"
           
           next if can_reach.empty? 

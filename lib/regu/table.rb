@@ -1,30 +1,27 @@
-require 'inline'
-
 module Regu
   class Table < String
-    attr_accessor :use_ruby, :state_diagram, :captures
+    attr_accessor :use_ruby, :state_diagram
 
     WORD_LENGTH = 129
 
     def initialize(states)  
       dfa = states.to_dfa
-
-      state_map = Hash[dfa.each_with_index.to_a]      
-      table = state_map.map { "\x00" * WORD_LENGTH }
       
-      for state, key in state_map
+      state_list = dfa.each_with_index.map {|s, i| s.uid = i; s }
+
+      table = state_list.map { "\x00" * WORD_LENGTH }
+      
+      for state in state_list
         if state.accepting?
-          table[key][WORD_LENGTH - 1] = "\x01"
+          table[state.uid][WORD_LENGTH - 1] = "\x01"
         end
         
         for sym, dests in state.transitions
           raise 'No epsilon allowed' if sym == Regu::EP
           raise 'No nondeterminism' unless dests.size == 1
-          table[key][sym.ord] = state_map[dests[0]].chr
+          table[state.uid][sym.ord] = dests[0].uid.chr
         end        
       end
-      
-      @captures = []
 
       super(table.join)
     end
@@ -65,7 +62,7 @@ module Regu
     end
       
     def accepts?(word)      
-      if use_ruby?
+      if @use_ruby
         r_accept(word)
       else
         c_accept(self, word, word.size)
