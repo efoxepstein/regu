@@ -19,9 +19,3 @@ module Regu
     parse_tree.compile
   end
 end
-
-class Regexp
-  def regu
-    Regu[source]
-  end
-end

@@ -1,11 +1,15 @@
 require 'set'
 require 'inline'
+require 'fileutils'
+require 'digest/sha1'
 
 require 'regu/version'
 
 require 'regu/node'
 require 'regu/state'
 require 'regu/table'
+
+require 'regu/core_ext/regexp'
 
 require 'treetop'
 require 'regu/parser_nodes'

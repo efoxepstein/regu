@@ -1,6 +1,6 @@
-module Regu
+module Regu  
   class Table
-    attr_accessor :use_ruby, :state_diagram, :packed, :table
+    attr_accessor :use_ruby, :packed, :table
 
     WORD_LENGTH = 129
 
