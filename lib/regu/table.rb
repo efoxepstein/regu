@@ -38,8 +38,6 @@ module Regu
       
       builder.add_compile_flags '-std=c99'
       
-      next_line = 'state = 129 * table[state + *word++];'
-
       c_accept = <<-END_C
         int c_accept(char *skinny_table, char *word, int len) {
           uint16_t state = 0,
@@ -59,6 +57,8 @@ module Regu
       END_C
       
       reps = 6
+      next_line = 'state = 129 * table[state + *word++];'
+
       builder.c(c_accept % [reps, next_line*reps, next_line])
     end
     
