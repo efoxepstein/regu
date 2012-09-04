@@ -44,12 +44,12 @@ Also, right now, DFA construction is painfully slow.
 From the benchmarks.rb file, we get:
 
                   user     system      total        real
-    native  159.950000   0.180000 160.130000 (163.428341)
-    regu-c    0.010000   0.000000   0.010000 (  0.007991)
-    regu-rb   0.080000   0.000000   0.080000 (  0.079797)
+    native   83.180000   0.210000  83.390000 ( 89.411250)
+    regu-c    0.010000   0.000000   0.010000 (  0.005479)
+    regu-rb   0.060000   0.000000   0.060000 (  0.064115)
 
-    C-ext Regu is 20451.357371 times faster than native
-     Ruby Regu is 2048.050437 times faster than native
+    C-ext Regu is 16317.899443 times faster than native
+     Ruby Regu is 1394.543932 times faster than native
 
 We're pretty quick. 
 
@@ -59,6 +59,8 @@ We're pretty quick.
 that we should return, then go back and use Ruby's `Regexp`. This really only makes sense if we can figure out the context. Since
 construction for us is so expensive and such, maybe we should only do this if the regexp is frozen or something to indicate that
 that it's initialized ahead-of-time.
+
+*Better test data*. Can we find real world examples where Regu smokes the competition?
 
 ## Contributing
 

@@ -117,6 +117,14 @@ module Regu
       dot.join("\n")
     end
     
+    def dead?
+      terminal? and not accepting?
+    end
+    
+    def terminal?
+      transitions.values.all? {|s| s == self }
+    end
+    
     def to_dfa
       alphabet = (0..127).map(&:chr)
       pos = 0
@@ -125,8 +133,6 @@ module Regu
       while pos < queue.size
         states, proxy = queue.keys[pos], queue.values[pos]
         pos += 1
-        
-        # puts "Processing #{proxy.uid} (#{states.map(&:uid).inspect})"
   
         for sym in alphabet
           can_reach = Set.new
@@ -134,10 +140,6 @@ module Regu
           states.map {|x| x[sym]}
                 .flatten
                 .each {|x| x.epsilon_closure(can_reach) }
-
-          # puts "\t via #{sym.ord} it can reach #{can_reach.map(&:uid).inspect}"
-          
-          # next if can_reach.empty? 
           
           unless queue.key? can_reach
             queue[can_reach] = State.new(can_reach.any?(&:accepting?))
@@ -146,7 +148,7 @@ module Regu
           proxy[sym] << queue[can_reach]
         end
       end
-      
+
       queue.values[0]
     end
   end

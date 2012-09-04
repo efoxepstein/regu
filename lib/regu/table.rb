@@ -1,6 +1,6 @@
 module Regu  
   class Table
-    attr_accessor :use_ruby, :packed, :table
+    attr_accessor :use_ruby, :packed, :table, :dead_state
 
     WORD_LENGTH = 129
 
@@ -9,11 +9,15 @@ module Regu
       
       state_list = dfa.each_with_index.map {|s, i| s.uid = i; s }
 
-      @table = state_list.map { [0] * WORD_LENGTH }
-      
+      @table = state_list.map { [1] * WORD_LENGTH }
+            
       for state in state_list
         if state.accepting?
-          @table[state.uid][WORD_LENGTH - 1] = 1
+          @table[state.uid][WORD_LENGTH - 1] ^= 0b10
+        end
+        
+        if state.terminal?
+          @table[state.uid][WORD_LENGTH - 1] ^= 0b01
         end
         
         for sym, dests in state.transitions
@@ -33,22 +37,29 @@ module Regu
     inline do |builder|
       
       builder.add_compile_flags '-std=c99'
+      
+      next_line = 'state = 129 * table[state + *word++];'
 
       c_accept = <<-END_C
-        int c_accept(char *table, char *word, int len) {
-          uint16_t state = 0;
-          
-          uint16_t *real_table = (uint16_t *) table;
+        int c_accept(char *skinny_table, char *word, int len) {
+          uint16_t state = 0,
+                  *table = (uint16_t *) skinny_table;
 
-          for (int i = 0; i < len; ++i) {
-            state = real_table[(state * %d) + word[i]];
+          char *end_word = word + len; 
+          
+          while (table[state+128] %% 2 && word < end_word - %d) {
+            %s 
           }
 
-          return real_table[((state+1) * %d) - 1];
+          while (word != end_word)
+            %s
+
+          return table[state + 128];
         }
       END_C
       
-      builder.c(c_accept % [WORD_LENGTH, WORD_LENGTH])
+      reps = 6
+      builder.c(c_accept % [reps, next_line*reps, next_line])
     end
     
     def r_accept(word)
@@ -66,7 +77,7 @@ module Regu
         r_accept(word)
       else
         c_accept(packed, word, word.size)
-      end != 0
+      end > 1
     end    
     alias_method :=~, :accepts?
 
