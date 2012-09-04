@@ -137,7 +137,7 @@ module Regu
 
           # puts "\t via #{sym.ord} it can reach #{can_reach.map(&:uid).inspect}"
           
-          next if can_reach.empty? 
+          # next if can_reach.empty? 
           
           unless queue.key? can_reach
             queue[can_reach] = State.new(can_reach.any?(&:accepting?))

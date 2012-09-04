@@ -15,7 +15,7 @@ tests = {
       abababbabababababababababababababbabababcababababababababababbabababababababababababbabababababaabab
       6
     ],
-  'a{2,3}b{2,3}a{2,3}b{2,3}a{2,3}b{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}a{2,3}' =>
+  '[abcdef]{2,3}b*[abcdef]{2,3}[abcdef]{2,3}b{2,3}[abcdef]*[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}' =>
     %w[
       aaabbaaabbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       a
@@ -23,15 +23,6 @@ tests = {
       aabbbaaabbb
       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       aabbaabbaabbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    ],
-  'zygous|zygozoospore|zymase|zyme|zymic|zymin|zymite|zymogen|zymogene|zymogenesis|zymogenic|zymogenous|zymoid|zymologic|zymological|zymologist|zymology|zymolyis|zymolysis|zymolytic|zymome|zymometer|zymomin|zymophore|zymophoric|zymophosphate|zymophyte|zymoplastic|zymoscope|zymosimeter|zymosis|zymosterol|zymosthenic|zymotechnic|zymotechnical|zymotechnics|zymotechny|zymotic|zymotically|zymotize|zymotoxic|zymurgy|Zyrenian|Zyrian|Zyryan|zythem|Zythia|zythum|Zyzomys|Zyzzogeton' =>
-    %w[
-      zymester
-      zymogene
-      z
-      zealot
-      zymological
-      Zygozoospore
     ]
 }
 

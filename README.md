@@ -44,9 +44,12 @@ Also, right now, DFA construction is painfully slow.
 From the benchmarks.rb file, we get:
 
                   user     system      total        real
-    native    8.880000   0.010000   8.890000 (  8.933724)
-    regu-c    0.010000   0.000000   0.010000 (  0.009275)
-    regu-rb   0.200000   0.000000   0.200000 (  0.208004)
+    native  159.950000   0.180000 160.130000 (163.428341)
+    regu-c    0.010000   0.000000   0.010000 (  0.007991)
+    regu-rb   0.080000   0.000000   0.080000 (  0.079797)
+
+    C-ext Regu is 20451.357371 times faster than native
+     Ruby Regu is 2048.050437 times faster than native
 
 We're pretty quick. 
 

@@ -1,6 +1,6 @@
 module Regu
-  class Table < String
-    attr_accessor :use_ruby, :state_diagram
+  class Table
+    attr_accessor :use_ruby, :state_diagram, :packed, :table
 
     WORD_LENGTH = 129
 
@@ -9,21 +9,21 @@ module Regu
       
       state_list = dfa.each_with_index.map {|s, i| s.uid = i; s }
 
-      table = state_list.map { "\x00" * WORD_LENGTH }
+      @table = state_list.map { [0] * WORD_LENGTH }
       
       for state in state_list
         if state.accepting?
-          table[state.uid][WORD_LENGTH - 1] = "\x01"
+          @table[state.uid][WORD_LENGTH - 1] = 1
         end
         
         for sym, dests in state.transitions
           raise 'No epsilon allowed' if sym == Regu::EP
           raise 'No nondeterminism' unless dests.size == 1
-          table[state.uid][sym.ord] = dests[0].uid.chr
+          @table[state.uid][sym.ord] = dests[0].uid
         end        
       end
 
-      super(table.join)
+      @packed = @table.map {|x| x.pack('S*') }.join
     end
     
     def use_ruby?
@@ -33,18 +33,18 @@ module Regu
     inline do |builder|
       
       builder.add_compile_flags '-std=c99'
-      
-      # builder.include '<stdio.h>;'
 
       c_accept = <<-END_C
         int c_accept(char *table, char *word, int len) {
-          char state = 0;
+          uint16_t state = 0;
+          
+          uint16_t *real_table = (uint16_t *) table;
 
           for (int i = 0; i < len; ++i) {
-            state = table[(state * %d) + word[i]];
+            state = real_table[(state * %d) + word[i]];
           }
 
-          return table[((state+1) * %d) - 1];
+          return real_table[((state+1) * %d) - 1];
         }
       END_C
       
@@ -55,23 +55,27 @@ module Regu
       state = 0
       
       word.each_byte do |byte|
-        state = self[state * WORD_LENGTH + byte].ord
+        state = @table[state][byte]
       end
             
-      self[(state+1) * WORD_LENGTH + -1].ord
+      @table[state][WORD_LENGTH - 1]
     end
       
     def accepts?(word)      
       if @use_ruby
         r_accept(word)
       else
-        c_accept(self, word, word.size)
+        c_accept(packed, word, word.size)
       end != 0
     end    
     alias_method :=~, :accepts?
 
+    def ==(other)
+      table == other.table
+    end
+
     def inspect
-      each_byte.to_a.inspect
+      table.inspect
     end
   end
 end
