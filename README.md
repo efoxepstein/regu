@@ -29,9 +29,13 @@ Use it.
 
     /some_regex/.regu
     
-or
+### Caching
 
-    Regu['Hello (World|Eli)']
+The DFA construction process can be time-intensive. Use
+
+    /some_regex/.cached_regu
+    
+to deal with this. The first call to `cached_regu` will create the DFA and marshal it into a file within `.regu/`. You can change the caching folder by passing a string to `cached_regu`.
 
 ## Limitations
 
@@ -51,6 +55,8 @@ construction for us is so expensive and such, maybe we should only do this if th
 that it's initialized ahead-of-time.
 
 *Better test data*. Can we find real world examples where Regu smokes the competition?
+
+*DFA minimization*. We can reduce our memory footprint by minimizing.
 
 ## Contributing
 
