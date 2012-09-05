@@ -4,16 +4,7 @@ Regu is a fun experiment to see if it's viable to make a extremely fast, limited
 
 ## Features
 
-- Kleene star: `(regexp)*`
-- Plus operator: `(regexp)+`
-- Optional operator: `(regex)?`
-- Fixed repetition: `(regex){3}`
-- Range repetition: `(regex){2,5}`
-- Union: `reg1 | reg2`
-- Concat: `abc(d|e|f)`
-- Wildcard: `Hello .orld`
-- Escaping: `\{ \( \[`
-- Character classes: `[^abc]`
+We should essentially duplicate all features of vanilla regexps. Kleene stars and other repetition operators, union, concatenations, wildcards, escaping, character classes, etc.
 
 ## Usage
 
