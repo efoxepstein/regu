@@ -1,78 +1,74 @@
 require './lib/regu'
 require 'benchmark'
 
-tests = {
-  '(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*' =>
+def test(regular_expression, test_cases)
+  hits = 0
+  1000.times do
+    for test in test_cases
+      hits += 1 if regular_expression =~ test
+    end
+  end
+  hits
+end
+
+def benchmark(regexp, tests)  
+  regu = regexp.cached_regu
+  
+
+  native = Benchmark.realtime { test(regexp, tests) }
+  
+  regu.use_ruby = false
+  regu_c = Benchmark.realtime { test(regu, tests) }
+  
+  regu.use_ruby = true
+  regu_rb = Benchmark.realtime { test(regu, tests) }
+  
+  [native, regu_c, regu_rb]
+end
+
+regexps = {
+  '(red|green|blue)*(red|blue)*((blue)*|(green)*)(green|red)*' => 
     %w[
-      aaaabbababababbabbabbabbbababbaba
-      abababaabaababa
-      bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-      a
-      aabababbabababababababababababababababababbababababababababbabababababababaababbac
-      aababababababababbbabbabababababcababbabababababababababbabababababababbabab
-      abababbabababababababababababababbabababcababababababababababbabababababababababababbabababababaabab
-      6
-      cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      redredredredbluebluegreengreenredredredred
+      blueblueblueblueblueblueredgreenblue
+      blueblueblueblueblueblueredgreenblueblueblueblueblueblueblueredgreenblueblueblueblueblueblueblueredgreenblueblueblueblueblueblueblueredgreenblueredredredred
     ],
-  '[abcdef]{2,3}b[abcdef]{2,3}[abcdef]{2,3}b{2,3}[abcdef]*[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}[abcdef]{2,3}' =>
+  '(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*(a|b)(a|b)*b+'*3 =>
     %w[
-      aaabbaaabbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      a
-      b
-      aabbbaaabbb
-      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      aabbaabbaabbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      aaaaaaaaaaaaaaa
+      aababababababababbbabbabababababcababbabababababababababbabababababababbabab
+      aabababbabababababababababababababababababbababababababababbabababababababaababbac
+      abababbabababababababababababababbabababcababababababababababbabababababababababababbabababababaabab
+      cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    ],
+  '[abcdef]{2,3}b*[abcdef]*[abcdef]{2,3}b{2,3}'*3 =>
+    %w[
+      aabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccbbaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccbbaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccbb
+      bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbfffbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbfffbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbfffbb
+      aaccbbaaccbb
+    ],
+  '.*<div (class="([a-zA-Z0-9_-]+[ ]+)*")?><a href="[^"]+">[a-zA-Z0-9 ]+</a></div>.*' =>
+    [
+      'alskjfasfka fajkfl akjfasklfjas flkajflaskjfaslkfjas aslkfjasklf jsaklfj salkfja fklsajf salkfj fklasjf <div class="foo bar baz "><a href="#">Log Out</a></div>alksjf aisf a8f asjfiosajfiosajfsioafjsafjsaoijf soifja oifjs fioasj fasjoifs jaiofjsa iofajs fiosajf iosajf ioasjf saiojf aoisjfsao',
+      '<div ><a href="foo">bar</a></di<div class=" "><a <div ><a href=""></div><div class="foo "><'
+    ],
+  '(0|1){10,20}(0|1|2){5,10}(0|1|2|3){3,5}(0|1|2|3|4){2,4}(0|1|2|3|4|5){0,3}' =>
+    %w[
+      0000000000111111111100000111100
+      00000000000000000000000000000006
+      000000000000000000001111111111222223333444
     ]
 }
 
-
-regexps = tests.to_a.map do |re, test_cases|
-  ruby_native = /#{re}/
-  regu = ruby_native.regu
+for str, tests in regexps
+  puts str[0,30]
+  native, c, rb = benchmark(/#{str}/, tests)
   
-  [[ruby_native, regu], test_cases]
+
+  puts "\tC-ext Regu: %f x native" % [native / c]
+  puts "\tRuby Regu: %f x native"  % [native / rb]
+  puts
 end
 
-reps = 500
 
-a, b, c = 0, 0, 0
-
-results = Benchmark.bmbm(7) do |x|
-  x.report('native') do
-    reps.times do
-      regexps.each do |regs, tests|
-        for test in tests
-          a += 1 if regs[0] =~ test
-        end
-      end
-    end
-  end
-
-  x.report('regu-c') do
-    reps.times do
-      regexps.each do |regs, tests|
-        regs[1].use_ruby = false
-        for test in tests
-          b += 1 if regs[1] =~ test
-        end
-      end
-    end
-  end
-  x.report('regu-rb') do
-    reps.times do
-      regexps.each do |regs, tests|
-        regs[1].use_ruby = true
-        for test in tests
-          c += 1 if regs[1] =~ test
-        end
-      end
-    end
-  end
-end
-
-raise 'Successes not matching' unless a == b && b == c
-
-puts "\n"
-
-puts "C-ext Regu is %f times faster than native" % [results[0].real / results[1].real]
-puts " Ruby Regu is %f times faster than native" % [results[0].real / results[2].real]

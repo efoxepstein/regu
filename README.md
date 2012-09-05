@@ -41,17 +41,7 @@ Also, right now, DFA construction is painfully slow.
 
 ## Performance
 
-From the benchmarks.rb file, we get:
-
-                  user     system      total        real
-    native   83.180000   0.210000  83.390000 ( 89.411250)
-    regu-c    0.010000   0.000000   0.010000 (  0.005479)
-    regu-rb   0.060000   0.000000   0.060000 (  0.064115)
-
-    C-ext Regu is 16317.899443 times faster than native
-     Ruby Regu is 1394.543932 times faster than native
-
-We're pretty quick. 
+From `benchmarks.rb`, I see we're between 4.58 and 26764 times faster than vanilla Regexps. That's pretty quick. There are plenty of regexps that would be infeasible to run without Regu.
 
 ## To-Do
 
