@@ -49,6 +49,8 @@ that it's initialized ahead-of-time.
 
 *DFA minimization*. We can reduce our memory footprint by minimizing.
 
+*`is_a? Regexp`*. We should be a regexp so we can be used in things like `String#split`.
+
 ## Contributing
 
 1. Fork it
