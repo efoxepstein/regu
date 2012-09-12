@@ -80,6 +80,7 @@ module Regu
       end > 1
     end    
     alias_method :=~, :accepts?
+    alias_method :===, :accepts?
 
     def ==(other)
       table == other.table

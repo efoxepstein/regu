@@ -2,6 +2,7 @@ require 'set'
 require 'inline'
 require 'fileutils'
 require 'digest/sha1'
+require 'treetop'
 
 require 'regu/version'
 
@@ -11,7 +12,6 @@ require 'regu/table'
 
 require 'regu/core_ext/regexp'
 
-require 'treetop'
 require 'regu/parser_nodes'
 require 'regu/parser'
 
